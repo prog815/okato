@@ -105,19 +105,6 @@
   h1{font-size:24px;margin:0 0 4px;letter-spacing:-.02em}
   .sub{color:var(--muted);margin:0 0 12px;font-size:14px}
 
-  /* Плашка ОКАТО != ОКТМО */
-  .warn{
-    background:#fff7e6; border:1px solid #f3d9a0; border-radius:10px;
-    padding:10px 12px; font-size:13px; color:#6b4e12; margin:0 0 12px;
-  }
-  .warn b{color:#5a3f08}
-  .warn a{color:#8a5a00; font-weight:600; text-decoration:underline}
-  @media(prefers-color-scheme:dark){
-    .warn{background:rgba(180,83,9,.15); border-color:rgba(180,83,9,.3); color:#fbbf24}
-    .warn b{color:#fcd34d}
-    .warn a{color:#fbbf24}
-  }
-
   /* Панель поиска */
   .search-container{padding:12px 0 8px;}
   .searchbar{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap;}
@@ -235,8 +222,6 @@
     background:#fafcfb; color:var(--muted); transition:all .15s;
   }
   .parent-btn:hover { border-color:var(--brand); color:var(--brand-d); }
-  .parent-btn.none { cursor:default; border-style:solid; background:transparent; }
-  .parent-btn.none:hover { border-color:var(--line); color:var(--muted); }
   .parent-btn .pc { font-family:var(--mono); font-size:12px; }
 
   mark { background:var(--mark); color:inherit; border-radius:2px; padding:0 1px; }
@@ -323,12 +308,6 @@
   <header class="hero">
     <h1>Справочник ОКАТО</h1>
     <p class="sub">Поиск по кодам и наименованиям объектов административно-территориального деления.</p>
-    <div class="warn">
-      <b>ОКАТО — это не ОКТМО.</b> 
-      ОКАТО описывает административно-территориальное деление, ОКТМО — муниципальные образования. 
-      Коды не взаимозаменяемы. Нужен код для налогов, бюджета или муниципальных услуг? 
-      Используйте <a href="https://prog815.github.io/oktmo/" target="_blank" rel="noopener">ОКТМО</a>.
-    </div>
   </header>
 
   <div class="search-container">
@@ -443,7 +422,8 @@
   ];
   var DEFAULT_SECONDARY_SOURCES = [
     { name: "КонсультантПлюс", url: "https://www.consultant.ru/document/cons_doc_LAW_35362/", role: "secondary" },
-    { name: "Гарант", url: "https://internet.garant.ru/#/document/179064", role: "secondary" }
+    { name: "Гарант", url: "https://internet.garant.ru/#/document/179064", role: "secondary" },
+    { name: "Кодекс", url: "https://docs.cntd.ru/document/842500018", role: "secondary" }
   ];
 
   var els = {
@@ -527,7 +507,6 @@
   function updateClearVisibility() {
     var hasQuery = String(els.q.value || '').length > 0;
     var hasCode = !!activeDeepLinkCode;
-    var hasType = false; // Чекбоксы уровней всегда включены по умолчанию
     var hasSubj = els.subject.value !== '';
     els.clearAll.style.display = (hasQuery || hasCode || hasSubj) ? 'block' : 'none';
   }
@@ -823,12 +802,11 @@
     var metaHtml = "";
     if (r.date) metaHtml += '<span title="Дата введения в действие">📅 ' + esc(r.date) + '</span>';
     
-    var parentHtml;
+    // Пустого родителя не показываем вообще
+    var parentHtml = "";
     if (r.parent) {
       var parentTitle = 'Клик — найти родительский объект: ' + r.parent + (r.pname ? (' (' + r.pname + ')') : '');
       parentHtml = '<span class="parent-btn" data-parent="' + esc(r.parent) + '" title="' + esc(parentTitle) + '">🔍 Родитель: <span class="pc">' + esc(r.parent) + '</span>' + (r.pname ? (' · ' + esc(r.pname)) : '') + '</span>';
-    } else {
-      parentHtml = '<span class="parent-btn none" title="Субъект РФ — верхний уровень иерархии, родитель отсутствует">🔍 Родитель: —</span>';
     }
 
     var codeTitle = "Копировать код: " + formatCodePretty(r.code);
